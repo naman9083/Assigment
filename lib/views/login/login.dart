@@ -26,6 +26,7 @@ class _loginState extends State<login> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
             backgroundImg(h: h),

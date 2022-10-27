@@ -21,8 +21,8 @@ class _splashState extends State<splash> {
         () => auth.currentUser == null
             ? Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => const login()))
-            : Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => const Home())));
+            : Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const userData())));
   }
 
   @override

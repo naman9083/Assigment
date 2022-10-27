@@ -26,6 +26,7 @@ class _JoinState extends State<Join> {
 
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: const Color.fromRGBO(247, 247, 247, 1),
         body: Stack(
           children: <Widget>[

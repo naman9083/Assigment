@@ -97,7 +97,8 @@ class _userDataState extends State<userData> {
         .then((value) => setState(() {
               file = value;
               imgfile = File(file!.path);
-              storageReference = firebaseStorage.ref().child(file!.name);
+              storageReference =
+                  firebaseStorage.ref().child("images/${file!.name}");
               UploadTask uploadTask = storageReference!.putFile(imgfile!);
               uploadTask.then((res) {
                 res.ref.getDownloadURL().then((value) {
@@ -151,156 +152,168 @@ class _userDataState extends State<userData> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height / 5,
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Center(
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.white,
-                  backgroundImage: url == null
-                      ? const AssetImage("assets/Icons/icon1.png")
-                      : NetworkImage(url!) as ImageProvider,
-                ),
-              ),
-            ),
-            Container(
-              child: InkWell(
-                onTap: () {
-                  imagePick();
-                },
-                child: const Text(
-                  'Change Profile Picture',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 20,
+      child: StreamBuilder<QuerySnapshot>(
+        stream: users.snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return const Text('Something went wrong');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: Column(
+              children: [
+                Container(
+                  height: MediaQuery.of(context).size.height / 5,
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.white,
+                      backgroundImage: url == null
+                          ? const AssetImage("assets/Icons/icon1.png")
+                          : NetworkImage(url!) as ImageProvider,
+                    ),
                   ),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height / 20,
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width / 1.2,
-              child: TextField(
-                controller: _text,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 1.2),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 2),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                  ),
-                  hintText: 'Enter your name',
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width / 1.2,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: Text(
-                _currentAddress == null
-                    ? 'Loading...'
-                    : "Current Location: $_currentAddress",
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width / 1.2,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: Text(
-                "Joined: On ${time.substring(0, 10)} at ${time.substring(11, 16)}" ??
-                    '',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(22, 20, 22, 0),
-              child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32.0),
-                    ),
-                  ),
-                  onPressed: () {
-                    if (_text.text.isEmpty) {
-                      Fluttertoast.showToast(
-                          msg: "Please enter your name",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0);
-                    } else if (url == null) {
-                      Fluttertoast.showToast(
-                          msg: "Please wait for image to upload",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0);
-                    } else {
-                      createUserInFirestore();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Home(),
-                        ),
-                      );
-                    }
-                  },
-                  child: const Center(
-                    child: Text(
-                      'Submit',
+                Container(
+                  child: InkWell(
+                    onTap: () {
+                      imagePick();
+                    },
+                    child: const Text(
+                      'Change Profile Picture',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.blue,
                         fontSize: 20,
                       ),
                     ),
-                  )),
-            )
-          ],
-        ),
+                  ),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 20,
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width / 1.2,
+                  child: TextField(
+                    controller: _text,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1.2),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 2),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      hintText: 'Enter your name',
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width / 1.2,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  child: Text(
+                    _currentAddress == null
+                        ? 'Loading...'
+                        : "Current Location: $_currentAddress",
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width / 1.2,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  child: Text(
+                    "Joined: On ${time.substring(0, 10)} at ${time.substring(11, 16)}" ??
+                        '',
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(22, 20, 22, 0),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        if (_text.text.isEmpty) {
+                          Fluttertoast.showToast(
+                              msg: "Please enter your name",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        } else if (url == null) {
+                          Fluttertoast.showToast(
+                              msg: "Please wait for image to upload",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        } else {
+                          createUserInFirestore();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Home(),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Center(
+                        child: Text(
+                          'Submit',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
+                      )),
+                )
+              ],
+            ),
+          );
+        },
       ),
     );
   }
