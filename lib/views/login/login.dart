@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:task25/components/backgroundCompoenent.dart';
 
 import '../../Helpers/validation_mixin.dart';
@@ -17,6 +18,7 @@ class _loginState extends State<login> {
   TextEditingController phone = TextEditingController();
   String verificationID = "";
   FirebaseAuth auth = FirebaseAuth.instance;
+  bool submitted = false;
 
   @override
   Widget build(BuildContext context) {
@@ -139,13 +141,47 @@ class _loginState extends State<login> {
                                       MaterialStateProperty.all(Colors.black),
                                 ),
                                 onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => Join(
-                                        phNumber: phone.text,
-                                      ),
-                                    ),
-                                  );
+                                  if (phone.text.isEmpty) {
+                                    Fluttertoast.showToast(
+                                        msg: "Enter Phone Number",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                  } else if (phone.text.length != 10) {
+                                    Fluttertoast.showToast(
+                                        msg: "Enter Valid Phone Number",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                  } else {
+                                    if (!submitted) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => Join(
+                                            phNumber: phone.text,
+                                          ),
+                                        ),
+                                      );
+                                      setState(() {
+                                        submitted = true;
+                                      });
+                                    } else {
+                                      Fluttertoast.showToast(
+                                          msg: "Please Wait",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+                                    }
+                                  }
                                 },
                                 child: Container(
                                   width: .39 * w,
