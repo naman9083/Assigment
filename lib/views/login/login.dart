@@ -139,7 +139,13 @@ class _loginState extends State<login> {
                                       MaterialStateProperty.all(Colors.black),
                                 ),
                                 onPressed: () {
-                                  loginWithPhone();
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => Join(
+                                        phNumber: phone.text,
+                                      ),
+                                    ),
+                                  );
                                 },
                                 child: Container(
                                   width: .39 * w,
@@ -165,42 +171,6 @@ class _loginState extends State<login> {
           ],
         ),
       ),
-    );
-  }
-
-  void loginWithPhone() async {
-    String phNumber = phone.text.toString();
-    print(phone.text.toString());
-    timeout:
-    const Duration(seconds: 60);
-    auth.verifyPhoneNumber(
-      phoneNumber: "+91${phone.text}",
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await FirebaseAuth.instance
-            .signInWithCredential(credential)
-            .then((value) {
-          print("You are logged in successfully");
-        });
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        print(e.message);
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        verificationID = verificationId;
-        print(verificationId);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => Join(
-              phNumber: phNumber,
-              VerificationId: verificationID,
-            ),
-          ),
-        );
-        setState(() {
-          verificationID = verificationId;
-        });
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
     );
   }
 }

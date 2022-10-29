@@ -7,9 +7,8 @@ import 'package:task25/components/backgroundCompoenent.dart';
 import '../home/userData.dart';
 
 class Join extends StatefulWidget {
-  Join({required this.phNumber, required this.VerificationId, Key? key})
-      : super(key: key);
-  String phNumber, VerificationId;
+  Join({required this.phNumber, Key? key}) : super(key: key);
+  String phNumber;
   @override
   State<Join> createState() => _JoinState();
 }
@@ -18,7 +17,41 @@ class _JoinState extends State<Join> {
   final _formPhoneKey = GlobalKey<FormState>();
   FirebaseAuth auth = FirebaseAuth.instance;
   TextEditingController otp = TextEditingController();
+  String verificationID = "";
+
   var givenBlue = const Color(0xFF314b5c);
+
+  void loginWithPhone() async {
+    String phone = widget.phNumber;
+    print(phone);
+
+    await auth.verifyPhoneNumber(
+      phoneNumber: "+91$phone",
+      verificationCompleted: (PhoneAuthCredential credential) async {},
+      verificationFailed: (FirebaseAuthException e) {
+        if (e.code == 'invalid-phone-number') {
+          print('The provided phone number is not valid.');
+        }
+      },
+      codeSent: (String verificationId, int? resendToken) async {
+        setState(() {
+          verificationID = verificationId;
+        });
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        setState(() {
+          verificationID = verificationId;
+        });
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loginWithPhone();
+  }
+
   @override
   Widget build(BuildContext context) {
     var w = MediaQuery.of(context).size.width;
@@ -194,8 +227,34 @@ class _JoinState extends State<Join> {
                                       color: Colors.white),
                                 ),
                                 TextButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      loginWithPhone();
+                                    },
                                     child: const Text("Resend",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: Colors.blue)))
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Wrong Number?",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: Colors.white),
+                                ),
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Change Number",
                                         style: TextStyle(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 14,
@@ -215,7 +274,7 @@ class _JoinState extends State<Join> {
                                       MaterialStateProperty.all(Colors.black),
                                 ),
                                 onPressed: () {
-                                  verifyOTP(widget.VerificationId, otp.text);
+                                  verifyOTP(verificationID, otp.text);
                                 },
                                 child: Container(
                                   width: .39 * w,
@@ -253,7 +312,7 @@ class _JoinState extends State<Join> {
       if (value.user != null) {
         Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => userData()),
+            MaterialPageRoute(builder: (context) => const userData()),
             (route) => false);
       }
       print("You are logged in successfully");
