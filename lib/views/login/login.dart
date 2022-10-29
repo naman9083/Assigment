@@ -18,13 +18,25 @@ class _loginState extends State<login> {
   TextEditingController phone = TextEditingController();
   String verificationID = "";
   FirebaseAuth auth = FirebaseAuth.instance;
-  bool submitted = false;
+  late bool submitted;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    submitted = false;
+    super.initState();
+  }
+
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
+  }
 
   @override
   Widget build(BuildContext context) {
     var h = MediaQuery.of(context).size.height;
     var w = MediaQuery.of(context).size.width;
     Color givenBlue = const Color(0xFF314b5c);
+
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -160,27 +172,13 @@ class _loginState extends State<login> {
                                         textColor: Colors.white,
                                         fontSize: 16.0);
                                   } else {
-                                    if (!submitted) {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => Join(
-                                            phNumber: phone.text,
-                                          ),
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => Join(
+                                          phNumber: phone.text,
                                         ),
-                                      );
-                                      setState(() {
-                                        submitted = true;
-                                      });
-                                    } else {
-                                      Fluttertoast.showToast(
-                                          msg: "Please Wait",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 1,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          fontSize: 16.0);
-                                    }
+                                      ),
+                                    );
                                   }
                                 },
                                 child: Container(

@@ -20,6 +20,10 @@ class _HomeState extends State<Home> {
   String? name;
   String? phone;
   String? address;
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
+  }
+
   String image =
       "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png";
   String? time;
@@ -30,7 +34,7 @@ class _HomeState extends State<Home> {
     uid = auth.currentUser!.uid;
     data = await users.doc(uid).get();
 
-    setState(() {
+    setStateIfMounted(() {
       name = data['name'];
       phone = data['phone'];
       address = data['address'];

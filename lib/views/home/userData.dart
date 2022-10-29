@@ -70,7 +70,7 @@ class _userDataState extends State<userData> {
     if (!hasPermission) return;
     await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((Position position) {
-      setState(() => _currentPosition = position);
+      setStateIfMounted(() => _currentPosition = position);
       _getAddressFromLatLng(_currentPosition!);
     }).catchError((e) {
       debugPrint(e);
@@ -82,7 +82,7 @@ class _userDataState extends State<userData> {
             _currentPosition!.latitude, _currentPosition!.longitude)
         .then((List<Placemark> placemarks) {
       Placemark place = placemarks[0];
-      setState(() {
+      setStateIfMounted(() {
         _currentAddress =
             '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
       });
@@ -94,7 +94,7 @@ class _userDataState extends State<userData> {
   imagePick() async {
     final image = await ImagePicker()
         .pickImage(source: ImageSource.camera)
-        .then((value) => setState(() {
+        .then((value) => setStateIfMounted(() {
               file = value;
               imgfile = File(file!.path);
               storageReference =
@@ -103,7 +103,7 @@ class _userDataState extends State<userData> {
               uploadTask.then((res) {
                 res.ref.getDownloadURL().then((value) {
                   print(value);
-                  setState(() {
+                  setStateIfMounted(() {
                     url = value;
                   });
                 });
@@ -123,7 +123,7 @@ class _userDataState extends State<userData> {
 
   setTime() {
     DateTime now = DateTime.now();
-    setState(() {
+    setStateIfMounted(() {
       time = now.toString().substring(0, 16);
     });
   }
@@ -131,13 +131,17 @@ class _userDataState extends State<userData> {
   getData() async {
     uid = auth.currentUser!.uid;
     data = await users.doc(uid).get();
-    setState(() {
+    setStateIfMounted(() {
       _text.text = data['name'];
       phone.text = data['phone'];
       _currentAddress = data['address'];
       url = data['image'];
       time = data['time'];
     });
+  }
+
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
   }
 
   @override
